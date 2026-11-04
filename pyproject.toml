@@ -1,0 +1,27 @@
+[project]
+name = "rxnbo"
+version = "0.1.0"
+description = "Can machine learning and Bayesian optimisation find high-yield reaction conditions faster than random screening?"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy", "pandas", "openpyxl", "scikit-learn", "torch", "rdkit", "drfp", "matplotlib",
+]
+
+[project.optional-dependencies]
+embed = ["sentence-transformers"]
+llm = ["anthropic"]
+dev = ["pytest"]
+
+[project.scripts]
+rxnbo = "rxnbo.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
