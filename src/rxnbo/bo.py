@@ -29,16 +29,19 @@ from scipy.stats import norm
 from .models.gp import GP
 
 
-def expected_improvement(mu, sd, best, xi=0.01):
+# Every acquisition is called the same way, f(mu, sd, best); what tunes it (xi, beta) is keyword-only, so a
+# positional argument can never land in it (UCB once took the best yield so far as its beta).
+def expected_improvement(mu, sd, best, *, xi=0.01):
     z = (mu - best - xi) / sd
     return (mu - best - xi) * norm.cdf(z) + sd * norm.pdf(z)
 
 
-def probability_of_improvement(mu, sd, best, xi=0.01):
+def probability_of_improvement(mu, sd, best, *, xi=0.01):
     return norm.cdf((mu - best - xi) / sd)
 
 
-def upper_confidence_bound(mu, sd, beta=4.0):
+def upper_confidence_bound(mu, sd, best=None, *, beta=4.0):
+    """mu + sqrt(beta) sd. `best` is not used: it is there so UCB is called like EI and PI."""
     return mu + np.sqrt(beta) * sd
 
 

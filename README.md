@@ -63,11 +63,12 @@ All numbers are means over seeds or folds; every figure is drawn from a CSV in `
 | greedy (mean) | 20 | 32 % | 99.6 % |
 | EI | 24.5 | 35 % | 99.8 % |
 | PI | 21 | 36 % | 99.8 % |
-| UCB (β = 4) | 32.5 | 11 % | 99.1 % |
+| UCB (β = 4) | 23 | 36 % | 99.8 % |
 | Thompson | 22 | 23 % | 99.7 % |
 
 Every model-guided strategy finds a top-1 % reaction in about half the experiments random screening needs, and
-finds ten times as many of the top 5 %. UCB with a large β explores more and exploits less, which shows here.
+finds ten times as many of the top 5 %. EI, PI and UCB end up level; Thompson sampling, the one that leaves most to
+chance, finds fewer of the top 5 % (23 %) within this short budget.
 
 ![Figure 4](results/fig4_bo.png)
 

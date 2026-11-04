@@ -38,11 +38,17 @@ def amination_product(aryl_halide: str) -> str:
     mol = Chem.MolFromSmiles(aryl_halide)
     if mol is None:
         raise ValueError(f"unreadable SMILES: {aryl_halide}")
-    products = {Chem.MolToSmiles(p[0]) for p in _amination().RunReactants((mol,))
-                if Chem.SanitizeMol(p[0], catchErrors=True) == Chem.SanitizeFlags.SANITIZE_NONE}
+    rxn = _amination()
+    # count the sites, not the distinct products: in a symmetric dihalide (p-dibromobenzene) both sites give the
+    # same product, and a set of products would let it through as if it had one
+    sites = mol.GetSubstructMatches(rxn.GetReactantTemplate(0))
+    if len(sites) != 1:
+        raise ValueError(f"{aryl_halide}: expected one aryl halide site, found {len(sites)}")
+    products = [p[0] for p in rxn.RunReactants((mol,))
+                if Chem.SanitizeMol(p[0], catchErrors=True) == Chem.SanitizeFlags.SANITIZE_NONE]
     if len(products) != 1:
-        raise ValueError(f"{aryl_halide}: expected one aryl halide site, found {len(products)}")
-    return products.pop()
+        raise ValueError(f"{aryl_halide}: the coupling product does not sanitise")
+    return Chem.MolToSmiles(products[0])
 
 
 def reaction_smiles(aryl_halide: str, ligand: str, base: str, additive: str) -> str:

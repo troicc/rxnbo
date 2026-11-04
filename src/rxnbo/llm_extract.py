@@ -140,10 +140,13 @@ def score_field(field: str, answer, key) -> str:
         return "missed"
     if field == "temperature_c":
         return "correct" if abs(float(answer) - float(key)) <= 5 else "wrong"
+    want = _fragments(str(key))
+    if want is None:
+        return "bad_key"  # the answer key itself does not parse: nothing to compare with, so not the model's error
     got = _fragments(str(answer))
     if got is None:
         return "invalid"
-    return "correct" if got == _fragments(key) else "wrong"
+    return "correct" if got == want else "wrong"
 
 
 def score(answers: list[dict], records: list[Record]) -> pd.DataFrame:
@@ -157,7 +160,7 @@ def score(answers: list[dict], records: list[Record]) -> pd.DataFrame:
 
 def summarise(scored: pd.DataFrame) -> pd.DataFrame:
     """Per field: share of records (with a key) that were correct / wrong / missed / invalid."""
-    keyed = scored[~scored.outcome.isin(["no_key", "extra"])]
+    keyed = scored[~scored.outcome.isin(["no_key", "extra", "bad_key"])]
     tab = keyed.groupby("field").outcome.value_counts(normalize=True).unstack(fill_value=0)
     for col in ("correct", "wrong", "missed", "invalid", "failed"):
         if col not in tab:

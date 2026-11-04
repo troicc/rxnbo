@@ -19,6 +19,8 @@ def test_no_or_two_halides_is_an_error():
         filters.amination_product("c1ccccc1")
     with pytest.raises(ValueError):
         filters.amination_product("Clc1ccc(Br)cc1")
+    with pytest.raises(ValueError):  # two equal sites give one product, but are still two sites
+        filters.amination_product("Brc1ccc(Br)cc1")
 
 
 def test_reaction_smiles_has_three_parts():

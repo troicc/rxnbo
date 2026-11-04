@@ -31,6 +31,7 @@ def test_compound_scoring_by_structure_not_spelling():
     assert X.score_field("base", "not a smiles((", cs2co3) == "invalid"
     assert X.score_field("base", None, cs2co3) == "missed"
     assert X.score_field("ligand", None, None) == "no_key"
+    assert X.score_field("base", cs2co3, "not a smiles((") == "bad_key"  # the key's fault, not the model's
     dba = "C1=CC=C(C=C1)/C=C/C(=O)/C=C/C2=CC=CC=C2"
     assert X.score_field("pd_source", f"{dba.replace('/', '')}.[Pd]", f"{dba}.{dba}.[Pd].[Pd]") == "correct"
     assert X.score_field("temperature_c", 104, 100.0) == "correct"

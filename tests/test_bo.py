@@ -11,6 +11,14 @@ def test_acquisition_values_by_hand():
     assert np.isclose(bo.upper_confidence_bound(1.0, 0.5, beta=4), 2.0)
 
 
+def test_every_acquisition_is_called_the_same_way():
+    # the BO loop calls each as f(mu, sd, best); UCB must not take the best yield as its beta
+    mu, sd = np.array([1.0, 3.0]), np.array([0.5, 0.1])
+    for best in (0.0, 90.0):
+        assert np.allclose(bo.ACQUISITIONS["ucb"](mu, sd, best), mu + 2 * sd)
+    assert np.isclose(bo.ACQUISITIONS["ei"](5.0, 2.0, 5.0), bo.expected_improvement(5.0, 2.0, 5.0, xi=0.01))
+
+
 def test_ei_grows_with_uncertainty_and_is_never_negative():
     mu = np.linspace(-3, 3, 50)
     for sd in (0.1, 1, 3):
@@ -41,6 +49,14 @@ def test_bo_beats_random_on_a_learnable_toy():
             - bo.best_so_far(bo.run(X, y, "random", s, n_init=5, batch=3, rounds=6), y)[-1]
             for s in range(5)]
     assert np.mean(gain) > 0
+
+
+def test_ucb_batches_follow_beta():
+    # with beta = 4 the batch must be the top of mu + 2 sd, whatever the best yield so far is
+    X, y = _toy()
+    r = bo.run(X, y + 1000, "ucb", seed=1, n_init=8, batch=3, rounds=1, gp_steps=20)
+    s = bo.run(X, y, "ucb", seed=1, n_init=8, batch=3, rounds=1, gp_steps=20)
+    assert r.picked == s.picked  # shifting every yield by 1000 changes nothing
 
 
 def test_metrics():
